@@ -1,0 +1,27 @@
+{
+  "name": "automation-api",
+  "version": "1.0.0",
+  "description": "Automation API for Beier und Partner - replaces Make.com workflows",
+  "main": "dist/index.js",
+  "scripts": {
+    "build": "tsc",
+    "start": "node dist/index.js",
+    "dev": "ts-node src/index.ts"
+  },
+  "dependencies": {
+    "axios": "^1.7.0",
+    "express": "^4.21.0",
+    "form-data": "^4.0.5",
+    "pdf-lib": "^1.17.1",
+    "pino": "^9.4.0",
+    "pino-pretty": "^11.2.0"
+  },
+  "devDependencies": {
+    "@types/express": "^5.0.0",
+    "@types/node": "^22.0.0",
+    "typescript": "^5.6.0"
+  },
+  "engines": {
+    "node": ">=20.0.0"
+  }
+}
