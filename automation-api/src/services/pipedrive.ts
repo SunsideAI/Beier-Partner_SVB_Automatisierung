@@ -35,7 +35,13 @@ class PipedriveClient {
     this.client.interceptors.response.use(undefined, (error: AxiosError) => {
       const status = error.response?.status;
       const data = error.response?.data;
-      logger.error({ status, data, url: error.config?.url }, 'Pipedrive API error');
+      logger.error({
+        status,
+        data,
+        url: error.config?.url,
+        method: error.config?.method,
+        requestBody: error.config?.data,
+      }, 'Pipedrive API error');
 
       if (status === 429) {
         throw new PipedriveError('Rate limit exceeded', error);
