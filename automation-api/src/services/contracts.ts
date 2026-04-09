@@ -120,19 +120,18 @@ async function markContractActivityDone(dealId: number): Promise<void> {
 
 /**
  * Splits the Vollmacht (first page) from the Sachverständigenvertrag PDF.
- * Only applies when Rahmenvertrag = "Nein" AND Sonderbedingung = "Nein".
+ * Only applies when Rahmenvertrag = "Nein" AND Gerichtsauftrag = "Nein".
  */
 async function processVollmachtSplit(dealId: number): Promise<void> {
   const deal = await pipedrive.getDeal(dealId);
 
   const rahmenvertrag = deal[PD_FIELDS.RAHMENVERTRAG];
-  const sonderbedingung = deal[PD_FIELDS.SONDERBEDINGUNG];
+  const gerichtsauftrag = deal[PD_FIELDS.GERICHTSAUFTRAG];
 
-  // Bug 4: Vergleich mit Option-IDs statt String-Literalen (Pipedrive Select-Felder)
-  const isRahmenvertrag = String(rahmenvertrag) === String(PD_FIELDS.RAHMENVERTRAG_JA);
-  const isSonderbedingung = String(sonderbedingung) === String(PD_FIELDS.SONDERBEDINGUNG_JA);
-  if (isRahmenvertrag || isSonderbedingung) {
-    logger.info({ dealId, rahmenvertrag, sonderbedingung }, 'Skipping Vollmacht split (Rahmenvertrag or Sonderbedingung = Ja)');
+  const isRahmenvertrag = String(rahmenvertrag) === PD_FIELDS.RAHMENVERTRAG_JA;
+  const isGerichtsauftrag = String(gerichtsauftrag) === PD_FIELDS.GERICHTSAUFTRAG_JA;
+  if (isRahmenvertrag || isGerichtsauftrag) {
+    logger.info({ dealId, rahmenvertrag, gerichtsauftrag }, 'Skipping Vollmacht split (Rahmenvertrag or Gerichtsauftrag = Ja)');
     return;
   }
 
@@ -172,8 +171,7 @@ export async function processNewDealTax(dealId: number): Promise<void> {
   const deal = await pipedrive.getDeal(dealId);
 
   const rahmenvertrag = deal[PD_FIELDS.RAHMENVERTRAG];
-  // Bug 4: Vergleich mit Option-ID statt String-Literal
-  if (String(rahmenvertrag) === String(PD_FIELDS.RAHMENVERTRAG_JA)) {
+  if (String(rahmenvertrag) === PD_FIELDS.RAHMENVERTRAG_JA) {
     logger.info({ dealId, rahmenvertrag }, 'Skipping tax update (Rahmenvertrag = Ja)');
     return;
   }

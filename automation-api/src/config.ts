@@ -47,7 +47,7 @@ export const config = {
 export const PD_FIELDS = {
   // Deal-Felder
   RAHMENVERTRAG: '9ed429fe5471134bc5d3c881bac3cb2863f25e0b',
-  SONDERBEDINGUNG: 'ddf37ced62736231377faadda44665744884ff7a',
+  GERICHTSAUFTRAG: 'ddf37ced62736231377faadda44665744884ff7a',
   FACTORING: '83bb2cb93a7f9879b50188fb1c1f09e2e8260db3',
   OBJEKTADRESSE: '6725f53779d3dcf7e0663e3547eea448a0c70f9d',
   KUNDENADRESSE: '2f61955f14617f9063b8e45c6adeeb1d7d6a5071',
@@ -64,9 +64,7 @@ export const PD_FIELDS = {
   SV: 'f18f1653e991a65a549bf27719a07fd55241d0b5',
 
   // Person-Felder
-  // TODO: Anrede Field-ID aus Pipedrive ermitteln:
-  // curl "https://beierundpartner.pipedrive.com/api/v1/personFields?api_token=XXX" | grep -i anrede
-  ANREDE: 'HIER_DIE_FIELD_ID_EINTRAGEN',
+  ANREDE: '74409f5fa9bc2b9fbc32d70116ecb0949aac6955',
 
   // Termin-Felder
   TERMIN_DATUM: 'c7f123ac15cba683b62bcee0acaaf25568901ac4',
@@ -78,15 +76,12 @@ export const PD_FIELDS = {
   FACTORING_NEIN: 50,
 
   // Rahmenvertrag Select-Optionen
-  // TODO: Option-IDs aus Pipedrive ermitteln:
-  // curl "https://beierundpartner.pipedrive.com/api/v1/dealFields?api_token=XXX" | grep Rahmenvertrag
-  RAHMENVERTRAG_JA: 'OPTION_ID_JA',
-  RAHMENVERTRAG_NEIN: 'OPTION_ID_NEIN',
+  RAHMENVERTRAG_JA: '54',
+  RAHMENVERTRAG_NEIN: '55',
 
-  // Sonderbedingung Select-Optionen
-  // TODO: Option-IDs aus Pipedrive ermitteln (gleicher curl wie oben)
-  SONDERBEDINGUNG_JA: 'OPTION_ID_JA',
-  SONDERBEDINGUNG_NEIN: 'OPTION_ID_NEIN',
+  // Gerichtsauftrag Select-Optionen (vorher "Sonderbedingung")
+  GERICHTSAUFTRAG_JA: '51',
+  GERICHTSAUFTRAG_NEIN: '52',
 
   // Pipeline Stage
   STAGE_VERTRAG_UNTERSCHRIEBEN: 11,
