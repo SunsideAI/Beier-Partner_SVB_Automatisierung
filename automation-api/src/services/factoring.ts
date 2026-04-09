@@ -210,11 +210,19 @@ export async function processGmailNotification(
         } as any);
         logger.info({ dealId, status }, 'Deal updated: Factoring = Nein');
       } else {
-        // Status "unklar" — log warning for manual review
+        // Bug 5: Status "unklar" — Pipedrive-Aktivität für manuelle Prüfung anlegen
         logger.warn(
           { dealId, status, subject, snippet: message.snippet },
           'Factoring status unclear — manual review required',
         );
+
+        await pipedrive.createActivity({
+          subject: 'Factoring unklar — manuelle Pruefung noetig',
+          type: 'task',
+          due_date: new Date().toISOString().split('T')[0],
+          deal_id: dealId,
+          note: `Eine aifinyo-E-Mail konnte nicht eindeutig zugeordnet werden.\n\nBetreff: ${subject}\nVorschau: ${message.snippet}\n\nBitte E-Mail manuell pruefen und Factoring-Status setzen.`,
+        });
       }
 
       processedAny = true;

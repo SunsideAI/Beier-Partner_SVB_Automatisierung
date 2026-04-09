@@ -63,6 +63,11 @@ export const PD_FIELDS = {
   GEMARKUNG: '37f28d178c8fb98147ca4ffc6bccadc842770d6b',
   SV: 'f18f1653e991a65a549bf27719a07fd55241d0b5',
 
+  // Person-Felder
+  // TODO: Anrede Field-ID aus Pipedrive ermitteln:
+  // curl "https://beierundpartner.pipedrive.com/api/v1/personFields?api_token=XXX" | grep -i anrede
+  ANREDE: 'HIER_DIE_FIELD_ID_EINTRAGEN',
+
   // Termin-Felder
   TERMIN_DATUM: 'c7f123ac15cba683b62bcee0acaaf25568901ac4',
   TERMIN_WOCHENTAG: '20183007bd0d563913f6dd15aade0d0a10b98ec3',
@@ -71,6 +76,17 @@ export const PD_FIELDS = {
   // Factoring-Werte (Select-Feld Optionen)
   FACTORING_JA: 49,
   FACTORING_NEIN: 50,
+
+  // Rahmenvertrag Select-Optionen
+  // TODO: Option-IDs aus Pipedrive ermitteln:
+  // curl "https://beierundpartner.pipedrive.com/api/v1/dealFields?api_token=XXX" | grep Rahmenvertrag
+  RAHMENVERTRAG_JA: 'OPTION_ID_JA',
+  RAHMENVERTRAG_NEIN: 'OPTION_ID_NEIN',
+
+  // Sonderbedingung Select-Optionen
+  // TODO: Option-IDs aus Pipedrive ermitteln (gleicher curl wie oben)
+  SONDERBEDINGUNG_JA: 'OPTION_ID_JA',
+  SONDERBEDINGUNG_NEIN: 'OPTION_ID_NEIN',
 
   // Pipeline Stage
   STAGE_VERTRAG_UNTERSCHRIEBEN: 11,
