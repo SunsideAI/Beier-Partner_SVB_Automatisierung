@@ -38,8 +38,6 @@ export const config = {
     refreshToken: optionalEnv('GOOGLE_REFRESH_TOKEN', ''),
   },
 
-  webhookSecret: optionalEnv('WEBHOOK_SECRET', ''),
-
   defaultOwnerId: parseInt(optionalEnv('DEFAULT_OWNER_ID', '22587384'), 10),
 } as const;
 

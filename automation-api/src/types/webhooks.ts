@@ -7,7 +7,7 @@ export interface LeadRequest {
   object_address?: string;
   interest?: string;
   message?: string;
-  source: 'form' | 'chatbot' | 'voicebot';
+  source: 'form';
 }
 
 /** PandaDoc webhook payload */

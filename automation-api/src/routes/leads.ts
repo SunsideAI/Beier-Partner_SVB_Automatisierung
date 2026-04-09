@@ -48,10 +48,4 @@ async function handleLead(req: Request, res: Response, source: LeadRequest['sour
 // POST /leads/form — Website contact form
 router.post('/leads/form', (req, res) => handleLead(req, res, 'form'));
 
-// POST /leads/chatbot — Voiceflow webhook
-router.post('/leads/chatbot', (req, res) => handleLead(req, res, 'chatbot'));
-
-// POST /leads/voicebot — Retell webhook
-router.post('/leads/voicebot', (req, res) => handleLead(req, res, 'voicebot'));
-
 export default router;
