@@ -125,20 +125,31 @@ async function markContractActivityDone(dealId: number): Promise<void> {
 async function processVollmachtSplit(dealId: number): Promise<void> {
   const deal = await pipedrive.getDeal(dealId);
 
-  const rahmenvertrag = deal[PD_FIELDS.RAHMENVERTRAG] as string | undefined;
-  const sonderbedingung = deal[PD_FIELDS.SONDERBEDINGUNG] as string | undefined;
+  const rahmenvertrag = deal[PD_FIELDS.RAHMENVERTRAG];
+  const sonderbedingung = deal[PD_FIELDS.SONDERBEDINGUNG];
 
-  if (rahmenvertrag === 'Ja' || sonderbedingung === 'Ja') {
-    logger.info({ dealId }, 'Skipping Vollmacht split (Rahmenvertrag or Sonderbedingung = Ja)');
+  // Bug 4: Vergleich mit Option-IDs statt String-Literalen (Pipedrive Select-Felder)
+  const isRahmenvertrag = String(rahmenvertrag) === String(PD_FIELDS.RAHMENVERTRAG_JA);
+  const isSonderbedingung = String(sonderbedingung) === String(PD_FIELDS.SONDERBEDINGUNG_JA);
+  if (isRahmenvertrag || isSonderbedingung) {
+    logger.info({ dealId, rahmenvertrag, sonderbedingung }, 'Skipping Vollmacht split (Rahmenvertrag or Sonderbedingung = Ja)');
     return;
   }
 
-  // Find Sachverständigenvertrag file
+  // Find Sachverständigenvertrag file — Bug 8: Umlaut-Fallback
   const files = await pipedrive.listDealFiles(dealId);
-  const svFile = files.find((f) =>
-    f.name.toLowerCase().includes('sachverständigenvertrag') ||
-    f.file_name.toLowerCase().includes('sachverständigenvertrag'),
-  );
+  const svFile = files.find((f) => {
+    const name = f.name.toLowerCase();
+    const fileName = f.file_name.toLowerCase();
+    return (
+      name.includes('sachverständigenvertrag') ||
+      name.includes('sachverstaendigenvertrag') ||
+      name.includes('sv-vertrag') ||
+      fileName.includes('sachverständigenvertrag') ||
+      fileName.includes('sachverstaendigenvertrag') ||
+      fileName.includes('sv-vertrag')
+    );
+  });
 
   if (!svFile) {
     logger.warn({ dealId }, 'No Sachverständigenvertrag file found for Vollmacht split');
@@ -160,9 +171,10 @@ async function processVollmachtSplit(dealId: number): Promise<void> {
 export async function processNewDealTax(dealId: number): Promise<void> {
   const deal = await pipedrive.getDeal(dealId);
 
-  const rahmenvertrag = deal[PD_FIELDS.RAHMENVERTRAG] as string | undefined;
-  if (rahmenvertrag === 'Ja') {
-    logger.info({ dealId }, 'Skipping tax update (Rahmenvertrag = Ja)');
+  const rahmenvertrag = deal[PD_FIELDS.RAHMENVERTRAG];
+  // Bug 4: Vergleich mit Option-ID statt String-Literal
+  if (String(rahmenvertrag) === String(PD_FIELDS.RAHMENVERTRAG_JA)) {
+    logger.info({ dealId, rahmenvertrag }, 'Skipping tax update (Rahmenvertrag = Ja)');
     return;
   }
 

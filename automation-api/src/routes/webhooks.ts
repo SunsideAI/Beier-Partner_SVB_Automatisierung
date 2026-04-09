@@ -2,6 +2,7 @@ import { Router, Request, Response } from 'express';
 import { processPandaDocWebhook, processNewDealTax } from '../services/contracts';
 import { processGmailNotification } from '../services/factoring';
 import { createAppointmentWithReminder } from '../services/scheduling';
+import { verifyWebhookSecret, verifyPandaDocSignature } from '../middleware/auth';
 import logger from '../utils/logger';
 import { AppError } from '../utils/errors';
 import type { PandaDocWebhookPayload, GmailPushNotification, PipedriveDealWebhook } from '../types/webhooks';
@@ -11,7 +12,7 @@ const router = Router();
 
 // ── PandaDoc Webhook ──
 
-router.post('/webhooks/pandadoc', async (req: Request, res: Response) => {
+router.post('/webhooks/pandadoc', verifyPandaDocSignature, async (req: Request, res: Response) => {
   const start = Date.now();
 
   try {
@@ -37,7 +38,7 @@ router.post('/webhooks/pandadoc', async (req: Request, res: Response) => {
 
 // ── Gmail Webhook (Factoring) ──
 
-router.post('/webhooks/gmail', async (req: Request, res: Response) => {
+router.post('/webhooks/gmail', verifyWebhookSecret, async (req: Request, res: Response) => {
   const start = Date.now();
 
   try {
@@ -63,7 +64,7 @@ router.post('/webhooks/gmail', async (req: Request, res: Response) => {
 
 // ── Pipedrive Webhook: Termin ──
 
-router.post('/webhooks/pipedrive/termin', async (req: Request, res: Response) => {
+router.post('/webhooks/pipedrive/termin', verifyWebhookSecret, async (req: Request, res: Response) => {
   const start = Date.now();
 
   try {
@@ -105,7 +106,7 @@ router.post('/webhooks/pipedrive/termin', async (req: Request, res: Response) =>
 
 // ── Pipedrive Webhook: Deal (Steuersatz) ──
 
-router.post('/webhooks/pipedrive/deal', async (req: Request, res: Response) => {
+router.post('/webhooks/pipedrive/deal', verifyWebhookSecret, async (req: Request, res: Response) => {
   const start = Date.now();
 
   try {

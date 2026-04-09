@@ -43,22 +43,30 @@ export async function processLead(input: LeadRequest): Promise<CrmResult> {
     // 2. Gender API → Anrede
     const anrede = await getAnrede(firstName);
 
-    // 3. Geocoding (if object address provided)
+    // 3. Geocoding (if object address provided) — Bug 2: Ergebnis jetzt gespeichert
+    let geocodedAddress: string | undefined;
     if (object_address) {
-      await geocodeAddress(object_address);
+      const geo = await geocodeAddress(object_address);
+      if (geo) {
+        geocodedAddress = geo.label;
+      }
     }
 
-    // 4. Create Person
+    // 4. Create Person (without Anrede — set via Custom Field below)
     const person = await pipedrive.createPerson({
       name,
       email: [{ value: email, primary: true }],
       phone: phone ? [{ value: phone, primary: true }] : undefined,
       owner_id: config.defaultOwnerId,
-      // Anrede as label field
-      label: anrede,
     });
     personId = person.id;
-    logger.info({ personId, name }, 'Person created in Pipedrive');
+
+    // Bug 3: Anrede als Custom Field setzen (nicht als label/Tag)
+    await pipedrive.updatePerson(person.id, {
+      [PD_FIELDS.ANREDE]: anrede,
+    } as any);
+
+    logger.info({ personId, name, anrede }, 'Person created in Pipedrive');
   }
 
   // 5. Create Lead
@@ -71,6 +79,11 @@ export async function processLead(input: LeadRequest): Promise<CrmResult> {
   // Set Kundenadresse if provided
   if (address) {
     (leadData as any)[PD_FIELDS.KUNDENADRESSE] = address;
+  }
+
+  // Bug 2: Objektadresse mit geokodierter Adresse setzen
+  if (object_address) {
+    (leadData as any)[PD_FIELDS.OBJEKTADRESSE] = object_address;
   }
 
   const lead = await pipedrive.createLead(leadData);

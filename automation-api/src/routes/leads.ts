@@ -1,5 +1,6 @@
 import { Router, Request, Response } from 'express';
 import { processLead } from '../services/crm';
+import { verifyWebhookSecret } from '../middleware/auth';
 import logger from '../utils/logger';
 import { AppError } from '../utils/errors';
 import type { LeadRequest } from '../types/webhooks';
@@ -46,6 +47,6 @@ async function handleLead(req: Request, res: Response, source: LeadRequest['sour
 }
 
 // POST /leads/form — Website contact form
-router.post('/leads/form', (req, res) => handleLead(req, res, 'form'));
+router.post('/leads/form', verifyWebhookSecret, (req, res) => handleLead(req, res, 'form'));
 
 export default router;
