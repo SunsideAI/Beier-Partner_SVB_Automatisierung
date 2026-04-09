@@ -63,7 +63,7 @@ automation-api/
 │   │   ├── contracts.ts            # PandaDoc-Vertragslogik (Steuer, Vollmacht, Aktivität)
 │   │   ├── scheduling.ts           # Termin-Erstellung + Erinnerung
 │   │   ├── gender.ts               # Gender API Integration
-│   │   └── geocoding.ts            # Geokodierung (Google Maps oder OpenCage)
+│   │   └── geocoding.ts            # Geokodierung (PositionStack)
 │   ├── utils/
 │   │   ├── logger.ts               # Pino Logger Setup
 │   │   ├── errors.ts               # Custom Error-Klassen
@@ -89,15 +89,14 @@ NODE_ENV=production
 LOG_LEVEL=info
 
 # Pipedrive
-PIPEDRIVE_API_TOKEN=xxx
+PIPEDRIVE_API_TOKEN=968aec2271b970e20e58c818f4b8b64ec0330a1c
 PIPEDRIVE_COMPANY_DOMAIN=beierundpartner
 
 # Gender API
-GENDER_API_KEY=xxx
+GENDER_API_KEY=64da01a8ce75d727f584208ef6a93f076f1d0322a0b9016c02e418fd0ddc9481
 
-# Geocoding (Google Maps oder OpenCage)
-GEOCODING_API_KEY=xxx
-GEOCODING_PROVIDER=google  # oder "opencage"
+# Geocoding (PositionStack)
+POSITIONSTACK_API_KEY=a82615cfdede19300ce45063f5dac464
 
 # PandaDoc (Webhook-Verifizierung)
 PANDADOC_WEBHOOK_SECRET=xxx
@@ -198,7 +197,8 @@ export const PD_FIELDS = {
    - "female" → Anrede = "Sehr geehrte Frau"
    - "unknown" oder Fehler → Anrede = "Guten Tag" (FALLBACK — fehlte bisher!)
 4. Geokodierung (wenn object_address vorhanden):
-   - Geocoding API aufrufen → Koordinaten erhalten
+   - PositionStack API aufrufen → Koordinaten erhalten
+   - URL: http://api.positionstack.com/v1/forward?access_key={key}&query={address}
 5. Pipedrive: Create Person
    - Name, Email, Phone, Anrede-Feld
 6. Pipedrive: Create Lead
@@ -291,8 +291,8 @@ export const PD_FIELDS = {
    b. Pipedrive: List Products in Deal
    c. Für jedes Produkt: Update Product Attachment
       - Tax: 19
-      - Tax Method: TBD (klären: "inclusive" oder "exclusive")
-      → WICHTIG: Im alten System inkonsistent! Muss einheitlich sein.
+      - Tax Method: inclusive (Preis enthält MwSt. / brutto)
+      → GEKLÄRT: Einheitlich inclusive für alle Workflows.
    d. Pipedrive: Get Activities for Deal
       - Aktivität mit Subject "Vertrag unterschrieben?" finden
       - Als "done" markieren
@@ -310,7 +310,7 @@ export const PD_FIELDS = {
    a. Pipedrive: List Products in Deal
    b. Für jedes Produkt: Update Product
       - Tax: 19
-      - Tax Method: TBD (siehe oben — muss identisch sein mit PandaDoc-Logik)
+      - Tax Method: inclusive
 ```
 
 ### Vollmacht-Split (Split Vertrag)
@@ -552,13 +552,20 @@ CMD ["node", "dist/index.js"]
 
 ---
 
-## Offene Punkte (vor Implementierung klären)
+## Offene Punkte
+
+### Geklärt
+
+| # | Frage | Entscheidung |
+|---|-------|------------|
+| 1 | **Tax Method** | **inclusive** (brutto, Preis enthält MwSt.) — einheitlich für alle Workflows |
+| 2 | **Geocoding-Provider** | **PositionStack** beibehalten (API-Key aus altem Setup vorhanden) |
+
+### Noch offen (vor Implementierung klären)
 
 | # | Frage | Auswirkung |
 |---|-------|------------|
-| 1 | **Tax Method: inclusive oder exclusive?** | Betrifft contracts.ts — muss einheitlich sein |
-| 2 | **Voiceflow Webhook-Payload Format** | Betrifft leads.ts — Endpunkt /leads/chatbot |
-| 3 | **Retell Webhook-Payload Format** | Betrifft leads.ts — Endpunkt /leads/voicebot |
-| 4 | **Gmail Push-Notification Setup** | Google Cloud Pub/Sub muss konfiguriert werden |
-| 5 | **Geocoding-Provider** | Google Maps (genauer, kostet) oder OpenCage (günstiger) |
-| 6 | **Pipedrive Webhook-Konfiguration** | Welche Events triggern welche Webhooks? |
+| 1 | **Voiceflow Webhook-Payload Format** | Betrifft leads.ts — Endpunkt /leads/chatbot |
+| 2 | **Retell Webhook-Payload Format** | Betrifft leads.ts — Endpunkt /leads/voicebot |
+| 3 | **Gmail Push-Notification Setup** | Google Cloud Pub/Sub muss konfiguriert werden |
+| 4 | **Pipedrive Webhook-Konfiguration** | Welche Events triggern welche Webhooks? |
