@@ -1,6 +1,7 @@
 import axios from 'axios';
 import { config, PD_FIELDS } from '../config';
 import { pipedrive } from './pipedrive';
+import { sendInfoAlert } from './notifications';
 import logger from '../utils/logger';
 import type { GmailPushNotification } from '../types/webhooks';
 
@@ -216,13 +217,17 @@ export async function processGmailNotification(
           'Factoring status unclear — manual review required',
         );
 
+        const alertDetails = `Eine aifinyo-E-Mail konnte nicht eindeutig zugeordnet werden.\n\nDeal ID: ${dealId}\nBetreff: ${subject}\nVorschau: ${message.snippet}\n\nBitte E-Mail manuell pruefen und Factoring-Status setzen.`;
+
         await pipedrive.createActivity({
           subject: 'Factoring unklar — manuelle Pruefung noetig',
           type: 'task',
           due_date: new Date().toISOString().split('T')[0],
           deal_id: dealId,
-          note: `Eine aifinyo-E-Mail konnte nicht eindeutig zugeordnet werden.\n\nBetreff: ${subject}\nVorschau: ${message.snippet}\n\nBitte E-Mail manuell pruefen und Factoring-Status setzen.`,
+          note: alertDetails,
         });
+
+        await sendInfoAlert('Factoring unklar — manuelle Pruefung noetig', alertDetails);
       }
 
       processedAny = true;

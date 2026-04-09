@@ -3,6 +3,7 @@ import { processPandaDocWebhook, processNewDealTax } from '../services/contracts
 import { processGmailNotification } from '../services/factoring';
 import { createAppointmentWithReminder } from '../services/scheduling';
 import { verifyWebhookSecret, verifyPandaDocSignature } from '../middleware/auth';
+import { sendErrorAlert } from '../services/notifications';
 import logger from '../utils/logger';
 import { AppError } from '../utils/errors';
 import type { PandaDocWebhookPayload, GmailPushNotification, PipedriveDealWebhook } from '../types/webhooks';
@@ -28,9 +29,11 @@ router.post('/webhooks/pandadoc', verifyPandaDocSignature, async (req: Request, 
     const duration = Date.now() - start;
     if (error instanceof AppError) {
       logger.error({ duration, error: error.message }, 'PandaDoc webhook failed');
+      await sendErrorAlert(req.path, error, req.body);
       res.status(error.statusCode).json({ success: false, error: error.message });
     } else {
       logger.error({ duration, error }, 'PandaDoc webhook unexpected error');
+      await sendErrorAlert(req.path, error, req.body);
       res.status(500).json({ success: false, error: 'Internal server error' });
     }
   }
@@ -54,9 +57,11 @@ router.post('/webhooks/gmail', verifyWebhookSecret, async (req: Request, res: Re
     const duration = Date.now() - start;
     if (error instanceof AppError) {
       logger.error({ duration, error: error.message }, 'Gmail webhook failed');
+      await sendErrorAlert(req.path, error, req.body);
       res.status(error.statusCode).json({ success: false, error: error.message });
     } else {
       logger.error({ duration, error }, 'Gmail webhook unexpected error');
+      await sendErrorAlert(req.path, error, req.body);
       res.status(500).json({ success: false, error: 'Internal server error' });
     }
   }
@@ -96,9 +101,11 @@ router.post('/webhooks/pipedrive/termin', verifyWebhookSecret, async (req: Reque
     const duration = Date.now() - start;
     if (error instanceof AppError) {
       logger.error({ duration, error: error.message }, 'Termin webhook failed');
+      await sendErrorAlert(req.path, error, req.body);
       res.status(error.statusCode).json({ success: false, error: error.message });
     } else {
       logger.error({ duration, error }, 'Termin webhook unexpected error');
+      await sendErrorAlert(req.path, error, req.body);
       res.status(500).json({ success: false, error: 'Internal server error' });
     }
   }
@@ -135,9 +142,11 @@ router.post('/webhooks/pipedrive/deal', verifyWebhookSecret, async (req: Request
     const duration = Date.now() - start;
     if (error instanceof AppError) {
       logger.error({ duration, error: error.message }, 'Deal webhook failed');
+      await sendErrorAlert(req.path, error, req.body);
       res.status(error.statusCode).json({ success: false, error: error.message });
     } else {
       logger.error({ duration, error }, 'Deal webhook unexpected error');
+      await sendErrorAlert(req.path, error, req.body);
       res.status(500).json({ success: false, error: 'Internal server error' });
     }
   }
