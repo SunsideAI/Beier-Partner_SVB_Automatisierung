@@ -43,7 +43,7 @@ export const config = {
   resend: {
     apiKey: optionalEnv('RESEND_API_KEY', ''),
     alertEmailTo: optionalEnv('ALERT_EMAIL_TO', 'contact@sunsideai.de'),
-    alertEmailFrom: optionalEnv('ALERT_EMAIL_FROM', 'alerts@sunsideai.de'),
+    alertEmailFrom: optionalEnv('ALERT_EMAIL_FROM', 'svb-alerts@sunsideai.de'),
   },
 
   defaultOwnerId: parseInt(optionalEnv('DEFAULT_OWNER_ID', '22587384'), 10),
