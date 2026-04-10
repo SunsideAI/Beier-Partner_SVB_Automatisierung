@@ -28,16 +28,6 @@ export interface PandaDocWebhookPayload {
   };
 }
 
-/** Gmail Pub/Sub push notification */
-export interface GmailPushNotification {
-  message: {
-    data: string; // Base64-encoded
-    messageId: string;
-    publishTime: string;
-  };
-  subscription: string;
-}
-
 /** Pipedrive webhook payload (deal update) */
 export interface PipedriveDealWebhook {
   v: number;

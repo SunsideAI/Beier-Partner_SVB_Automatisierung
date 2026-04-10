@@ -32,10 +32,8 @@ export const config = {
     webhookSecret: optionalEnv('PANDADOC_WEBHOOK_SECRET', ''),
   },
 
-  google: {
-    clientId: optionalEnv('GOOGLE_CLIENT_ID', ''),
-    clientSecret: optionalEnv('GOOGLE_CLIENT_SECRET', ''),
-    refreshToken: optionalEnv('GOOGLE_REFRESH_TOKEN', ''),
+  factoring: {
+    intervalMinutes: parseInt(optionalEnv('FACTORING_CHECK_INTERVAL_MINUTES', '30'), 10),
   },
 
   webhookSecret: optionalEnv('WEBHOOK_SECRET', ''),

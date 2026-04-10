@@ -1,12 +1,12 @@
 import { Router, Request, Response } from 'express';
 import { processPandaDocWebhook, processNewDealTax } from '../services/contracts';
-import { processGmailNotification } from '../services/factoring';
+import { checkOpenFactoringDeals } from '../services/factoring';
 import { createAppointmentWithReminder } from '../services/scheduling';
 import { verifyWebhookSecret, verifyPandaDocSignature } from '../middleware/auth';
 import { sendErrorAlert } from '../services/notifications';
 import logger from '../utils/logger';
 import { AppError } from '../utils/errors';
-import type { PandaDocWebhookPayload, GmailPushNotification, PipedriveDealWebhook } from '../types/webhooks';
+import type { PandaDocWebhookPayload, PipedriveDealWebhook } from '../types/webhooks';
 import { PD_FIELDS } from '../config';
 
 const router = Router();
@@ -39,28 +39,26 @@ router.post('/webhooks/pandadoc', verifyPandaDocSignature, async (req: Request, 
   }
 });
 
-// ── Gmail Webhook (Factoring) ──
+// ── Factoring Check (manueller Trigger) ──
 
-router.post('/webhooks/gmail', verifyWebhookSecret, async (req: Request, res: Response) => {
+router.post('/webhooks/factoring/check', verifyWebhookSecret, async (req: Request, res: Response) => {
   const start = Date.now();
 
   try {
-    const notification = req.body as GmailPushNotification;
-    logger.info({ messageId: notification.message?.messageId }, 'Gmail webhook received');
-
-    const result = await processGmailNotification(notification);
+    logger.info('Manual factoring check triggered');
+    const result = await checkOpenFactoringDeals();
 
     const duration = Date.now() - start;
-    logger.info({ duration, ...result }, 'Gmail webhook processed');
-    res.json({ success: true, ...result });
+    logger.info({ duration, ...result }, 'Manual factoring check completed');
+    res.json({ success: true, ...result, duration_ms: duration });
   } catch (error) {
     const duration = Date.now() - start;
     if (error instanceof AppError) {
-      logger.error({ duration, error: error.message }, 'Gmail webhook failed');
+      logger.error({ duration, error: error.message }, 'Factoring check failed');
       await sendErrorAlert(req.path, error, req.body);
       res.status(error.statusCode).json({ success: false, error: error.message });
     } else {
-      logger.error({ duration, error }, 'Gmail webhook unexpected error');
+      logger.error({ duration, error }, 'Factoring check unexpected error');
       await sendErrorAlert(req.path, error, req.body);
       res.status(500).json({ success: false, error: 'Internal server error' });
     }

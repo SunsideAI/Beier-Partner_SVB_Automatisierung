@@ -4,6 +4,7 @@ import logger from './utils/logger';
 import healthRouter from './routes/health';
 import leadsRouter from './routes/leads';
 import webhooksRouter from './routes/webhooks';
+import { checkOpenFactoringDeals } from './services/factoring';
 
 const app = express();
 
@@ -35,6 +36,27 @@ app.use((err: Error, _req: express.Request, res: express.Response, _next: expres
 // Start server
 app.listen(config.port, () => {
   logger.info({ port: config.port, env: config.nodeEnv }, 'Automation API started');
+
+  // Factoring Cron-Job
+  const intervalMs = config.factoring.intervalMinutes * 60 * 1000;
+  logger.info({ intervalMinutes: config.factoring.intervalMinutes }, 'Scheduling factoring check');
+
+  setInterval(async () => {
+    try {
+      await checkOpenFactoringDeals();
+    } catch (error) {
+      logger.error({ error }, 'Scheduled factoring check failed');
+    }
+  }, intervalMs);
+
+  // Initial check nach 10s Delay
+  setTimeout(async () => {
+    try {
+      await checkOpenFactoringDeals();
+    } catch (error) {
+      logger.error({ error }, 'Initial factoring check failed');
+    }
+  }, 10000);
 });
 
 export default app;

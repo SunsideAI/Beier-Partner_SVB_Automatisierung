@@ -109,6 +109,27 @@ class PipedriveClient {
     return res.data.data || [];
   }
 
+  async getOpenDeals(): Promise<Deal[]> {
+    const allDeals: Deal[] = [];
+    let start = 0;
+    const limit = 100;
+    let hasMore = true;
+
+    while (hasMore) {
+      const res = await this.client.get<PipedriveResponse<Deal[]>>('/deals', {
+        params: { status: 'open', start, limit },
+      });
+
+      const deals = res.data.data || [];
+      allDeals.push(...deals);
+
+      hasMore = res.data.additional_data?.pagination?.more_items_in_collection || false;
+      start += limit;
+    }
+
+    return allDeals;
+  }
+
   async getDealMailMessages(dealId: number): Promise<MailMessage[]> {
     const res = await this.client.get<PipedriveResponse<MailMessage[]>>(
       `/deals/${dealId}/mailMessages`,
