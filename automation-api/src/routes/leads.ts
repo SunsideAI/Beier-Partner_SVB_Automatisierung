@@ -1,6 +1,7 @@
 import { Router, Request, Response } from 'express';
 import { processLead } from '../services/crm';
 import { verifyWebhookSecret } from '../middleware/auth';
+import { sendErrorAlert } from '../services/notifications';
 import logger from '../utils/logger';
 import { AppError } from '../utils/errors';
 import type { LeadRequest } from '../types/webhooks';
@@ -38,9 +39,11 @@ async function handleLead(req: Request, res: Response, source: LeadRequest['sour
     const duration = Date.now() - start;
     if (error instanceof AppError) {
       logger.error({ source, duration, error: error.message }, 'Lead processing failed');
+      await sendErrorAlert(req.path, error, req.body);
       res.status(error.statusCode).json({ success: false, error: error.message, code: error.code });
     } else {
       logger.error({ source, duration, error }, 'Unexpected error processing lead');
+      await sendErrorAlert(req.path, error, req.body);
       res.status(500).json({ success: false, error: 'Internal server error' });
     }
   }
